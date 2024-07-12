@@ -11,11 +11,11 @@ const server = net.createServer((socket) => {
     
 
     if(path.includes("echo"))
-        return socket.write(Buffer.from(`${statusLine + headers + body.length}\r\n\r\n${body}`))
+        return socket.write(Buffer.from(`${statusLine+headers+body.length}\r\n\r\n${body}`))
 
     else if(path.includes("user-agent")){
         const userAgent = req.split("\n")[3].split(":")[1].trim();
-        return socket.write(Buffer.from(`${statusLine + headers + userAgent.length}\r\n\r\n${userAgent}`))
+        return socket.write(Buffer.from(`${statusLine+headers+userAgent.length}\r\n\r\n${userAgent}`))
     }
     else if(path === "/")
         return socket.write(Buffer.from('HTTP/1.1 200 OK\r\n\r\n'));
