@@ -10,7 +10,7 @@ const server = net.createServer((socket) => {
         return socket.write(Buffer.from(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${body.length}\r\n\r\n${body}`))
 
     else if(path === "/")
-        return socket.write('HTTP/1.1 200 OK\r\n\r\n');
+        return socket.write(Buffer.from('HTTP/1.1 200 OK\r\n\r\n'));
 
     return socket.write(Buffer.from("HTTP/1.1 404 Not Found\r\n\r\n"));
   });
