@@ -5,6 +5,9 @@ console.log("Logs from your program will appear here!");
 
 // Uncomment this to pass the first stage
 const server = net.createServer((socket) => {
+  const resMsg = Buffer.from("HTTP/1.1 200 OK\r\n\r\n");
+  socket.write(resMsg);
+
   socket.on("close", () => {
     socket.end();
   });
