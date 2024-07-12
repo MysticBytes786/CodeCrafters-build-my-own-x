@@ -8,13 +8,13 @@ const server = net.createServer((socket) => {
     const req: string = data.toString();
     const path = req.split(" ")[1];
     const body = path.split("/")[2];
-    const userAgent = req.split("\n")[3].split(":")[1].trim();
     
 
     if(path.includes("echo"))
         return socket.write(Buffer.from(`${statusLine + headers + body.length}\r\n\r\n${body}`))
 
     else if(path.includes("user-agent")){
+        const userAgent = req.split("\n")[3].split(":")[1].trim();
         return socket.write(Buffer.from(`${statusLine + headers + userAgent.length}\r\n\r\n${userAgent}`))
     }
     else if(path === "/")
