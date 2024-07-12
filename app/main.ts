@@ -14,9 +14,8 @@ const server = net.createServer((socket) => {
         return socket.write(Buffer.from(`${statusLine+headers+body.length}\r\n\r\n${body}`))
 
     else if(path.includes("user-agent")){
-        const userAgent = req.split("\r\n")[3].split(" ")[1]
-        const userAgent2 = req.split('User-Agent: ')[1].split('\r\n')[0]
-        console.log(userAgent,userAgent2)
+        const userAgent = req.split("User-Agent: ")[1].trim()
+
         return socket.write(Buffer.from(`${statusLine+headers+userAgent.length}\r\n\r\n${userAgent}`))
     }
     else if(path === "/")
