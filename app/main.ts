@@ -1,6 +1,6 @@
 import * as net from "net";
 import { argv } from "process";
-import { statusLine, Path, status } from "./types";
+import { statusLine, Path } from "./types";
 import { constructResponse, handleReadFile, parseRequest } from "./util";
 
 const server = net.createServer((socket) => {
