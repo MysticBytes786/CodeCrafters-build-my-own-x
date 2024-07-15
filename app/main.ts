@@ -1,71 +1,7 @@
 import * as net from "net";
-
-enum statusLine {
-  OK = "HTTP/1.1 200 OK\r\n",
-  NOT_FOUND = "HTTP/1.1 404 Not Found\r\n",
-}
-
-type Headers = {
-  "Content-Type"?: string;
-  "Content-Length"?: string;
-  "User-Agent"?: string;
-};
-
-type Request = {
-  status: string;
-  headers: Headers;
-  body: string;
-  method: string;
-  path: string;
-  version: string;
-};
-
-type Response = {
-  status: statusLine;
-  headers: Headers;
-  body: string;
-};
-
-enum Path {
-  root = "/",
-  echo = "/echo",
-  userAgent = "/user-agent",
-}
-
-function parseRequest(request: Buffer): Request {
-  const data = request.toString();
-  const [header, body] = data.split("\r\n\r\n");
-  const [status, ...headers] = header.split("\r\n");
-
-  const constructedHeader = headers.reduce((prevProp, header) => {
-    const [key, value] = header.split(": ");
-    return { ...prevProp, [key]: value };
-  }, {});
-  const [method, path, version] = status.split(" ");
-
-  return { status, headers: constructedHeader, body, method, path, version };
-}
-
-function constructResponse({
-  status,
-  headers = {},
-  body = "",
-}: Response): Buffer {
-  const statusBuffer = Buffer.from(status);
-  const headersBuffer = Buffer.from(
-    Object.entries(headers)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join("\r\n")
-  );
-  const bodyBuffer = Buffer.from(body);
-
-  return Buffer.concat([
-    statusBuffer,
-    headersBuffer,
-    Buffer.from("\r\n\r\n"),
-    bodyBuffer,
-  ]);
-}
+import { argv } from "process";
+import { statusLine, Path } from "./types";
+import { constructResponse, handleReadFile, parseRequest } from "./util";
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
@@ -113,6 +49,22 @@ const server = net.createServer((socket) => {
           });
         }
         break;
+
+      case `${Path.files}/${query}`:
+        const fileName = path.split("/").pop() as string;
+        const flag = argv[2];
+        const directory = argv[3];
+        const { fileContent, fileSize } = handleReadFile(fileName, directory);
+
+        const resHeader = {
+          "Content-Type": "application/octet-stream",
+          "Content-Length": fileSize,
+        };
+        response = constructResponse({
+          status: statusLine.OK,
+          headers: resHeader,
+          body: fileContent,
+        });
     }
     socket.write(response);
   });
