@@ -52,12 +52,13 @@ const server = net.createServer((socket) => {
 
       case `${Path.files}/${query}`:
         const fileName = path.split("/").pop() as string;
-        const flag = argv[2];
         const directory = argv[3];
         const file = handleReadFile(fileName, directory);
         if (!file) {
           response = constructResponse({
             status: statusLine.NOT_FOUND,
+            headers: {},
+            body: "",
           });
           break;
         }
