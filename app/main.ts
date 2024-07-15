@@ -81,8 +81,8 @@ const server = net.createServer((socket) => {
 
         //post
         if (method === "POST") {
-          const content = data.toString().split("\r\n")[7];
-          console.log(content)
+          const content = data.toString().split("\r\n").pop() as string;
+          cons
           handleCreateFile(fileName, directory, content);
           response = constructResponse({
             status: statusLine.SUCCESS,
