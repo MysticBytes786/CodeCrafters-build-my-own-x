@@ -12,6 +12,10 @@ const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     const { status, headers, body, method, path } = parseRequest(data);
     const query = path.split("/").pop();
+
+    const hasEncoding = "Accept-Encoding" in headers;
+    const acceptEncoding = hasEncoding ? headers["Accept-Encoding"] : "";
+
     let response = constructResponse({
       status: statusLine.NOT_FOUND,
       headers: {},
@@ -31,6 +35,7 @@ const server = net.createServer((socket) => {
         const resHeaders = {
           "Content-Type": "text/plain",
           "Content-Length": echoStr.length.toString(),
+          acceptEncoding,
         };
         response = constructResponse({
           status: statusLine.OK,
@@ -46,6 +51,7 @@ const server = net.createServer((socket) => {
           const resHeaders = {
             "Content-Type": "text/plain",
             "Content-Length": userAgent?.length.toString(),
+            acceptEncoding,
           };
           response = constructResponse({
             status: statusLine.OK,
@@ -71,6 +77,7 @@ const server = net.createServer((socket) => {
           const resHeader = {
             "Content-Type": "application/octet-stream",
             "Content-Length": file.fileSize,
+            acceptEncoding,
           };
           response = constructResponse({
             status: statusLine.OK,
