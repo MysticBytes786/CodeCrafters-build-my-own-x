@@ -1,6 +1,6 @@
 import * as net from "net";
 import { argv } from "process";
-import { statusLine, Path } from "./types";
+import { statusLine, Path, status } from "./types";
 import { constructResponse, handleReadFile, parseRequest } from "./util";
 
 const server = net.createServer((socket) => {
@@ -54,16 +54,21 @@ const server = net.createServer((socket) => {
         const fileName = path.split("/").pop() as string;
         const flag = argv[2];
         const directory = argv[3];
-        const { fileContent, fileSize } = handleReadFile(fileName, directory);
-
+        const file = handleReadFile(fileName, directory);
+        if (!file) {
+          response = constructResponse({
+            status: statusLine.NOT_FOUND,
+          });
+          break;
+        }
         const resHeader = {
           "Content-Type": "application/octet-stream",
-          "Content-Length": fileSize,
+          "Content-Length": file.fileSize,
         };
         response = constructResponse({
           status: statusLine.OK,
           headers: resHeader,
-          body: fileContent,
+          body: file.fileContent,
         });
     }
     socket.write(response);

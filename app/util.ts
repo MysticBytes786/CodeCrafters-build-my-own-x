@@ -36,8 +36,17 @@ export function constructResponse({
   ]);
 }
 
-export function handleReadFile(fileName: string, path: string) {
-  let file = fs.readFileSync(path.concat(`/${fileName}`));
-  const content = file.toString();
-  return { fileContent: content, fileSize: file.byteLength.toString() };
+type fileResult = {
+  fileContent: string;
+  fileSize: string;
+} | undefined;
+
+export function handleReadFile(fileName: string, path: string): fileResult {
+  try {
+    let file = fs.readFileSync(path.concat(`/${fileName}`));
+    const content = file.toString();
+    return { fileContent: content, fileSize: file.byteLength.toString() };
+  } catch (error) {
+    return undefined;
+  }
 }
