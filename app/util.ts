@@ -36,10 +36,12 @@ export function constructResponse({
   ]);
 }
 
-type fileResult = {
-  fileContent: string;
-  fileSize: string;
-} | undefined;
+type fileResult =
+  | {
+      fileContent: string;
+      fileSize: string;
+    }
+  | undefined;
 
 export function handleReadFile(fileName: string, path: string): fileResult {
   try {
@@ -49,4 +51,8 @@ export function handleReadFile(fileName: string, path: string): fileResult {
   } catch (error) {
     return undefined;
   }
+}
+
+export function handleCreateFile(fileName: string, path: string, data: string) {
+  fs.writeFileSync(path.concat(`/${fileName}`), data);
 }
