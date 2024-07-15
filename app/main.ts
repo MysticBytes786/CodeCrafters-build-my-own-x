@@ -35,7 +35,7 @@ const server = net.createServer((socket) => {
         const resHeaders = {
           "Content-Type": "text/plain",
           "Content-Length": echoStr.length.toString(),
-          acceptEncoding,
+          "Accept-Encoding": acceptEncoding,
         };
         response = constructResponse({
           status: statusLine.OK,
@@ -51,7 +51,7 @@ const server = net.createServer((socket) => {
           const resHeaders = {
             "Content-Type": "text/plain",
             "Content-Length": userAgent?.length.toString(),
-            acceptEncoding,
+            "Accept-Encoding": acceptEncoding,
           };
           response = constructResponse({
             status: statusLine.OK,
@@ -77,7 +77,7 @@ const server = net.createServer((socket) => {
           const resHeader = {
             "Content-Type": "application/octet-stream",
             "Content-Length": file.fileSize,
-            acceptEncoding,
+            "Accept-Encoding": acceptEncoding,
           };
           response = constructResponse({
             status: statusLine.OK,
