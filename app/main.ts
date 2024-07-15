@@ -10,7 +10,7 @@ import {
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
-    const { status, headers, body, path } = parseRequest(data);
+    const { status, headers, body, method, path } = parseRequest(data);
     const query = path.split("/").pop();
     let response = constructResponse({
       status: statusLine.NOT_FOUND,
@@ -58,17 +58,40 @@ const server = net.createServer((socket) => {
       case `${Path.files}/${query}`:
         const fileName = path.split("/").pop() as string;
         const directory = argv[3];
-        const content = data.toString().split("\r\n")[7];
-        handleCreateFile(fileName, directory, content);
+        if (method === "GET") {
+          const file = handleReadFile(fileName, directory);
+          if (!file) {
+            response = constructResponse({
+              status: statusLine.NOT_FOUND,
+              headers: {},
+              body: "",
+            });
+            break;
+          }
+          const resHeader = {
+            "Content-Type": "application/octet-stream",
+            "Content-Length": file.fileSize,
+          };
+          response = constructResponse({
+            status: statusLine.OK,
+            headers: resHeader,
+            body: file.fileContent,
+          });
+        }
 
-        response = constructResponse({
-          status: statusLine.SUCCESS,
-          headers: {},
-          body: "",
-        });
+        //post
+        if (method === "POST") {
+          const content = data.toString().split("\r\n")[7];
+          console.log(content)
+          handleCreateFile(fileName, directory, content);
+          response = constructResponse({
+            status: statusLine.SUCCESS,
+            headers: {},
+            body: "",
+          });
+        }
     }
     socket.write(response);
-    // socket.end();
   });
 
   socket.on("close", () => {
