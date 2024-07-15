@@ -14,11 +14,15 @@ const server = net.createServer((socket) => {
     const query = path.split("/").pop();
 
     const hasEncoding = "Accept-Encoding" in headers;
-    const acceptEncoding = hasEncoding ? headers["Accept-Encoding"] : "";
+    const acceptEncoding = hasEncoding
+      ? { "Content-Encoding": headers["Accept-Encoding"] }
+      : undefined;
+    const encodingType =
+      acceptEncoding?.["Content-Encoding"] === "gzip" ? acceptEncoding : {};
 
     let response = constructResponse({
       status: statusLine.NOT_FOUND,
-      headers: {},
+      headers: encodingType,
       body: "",
     });
     switch (path) {
@@ -32,14 +36,14 @@ const server = net.createServer((socket) => {
 
       case `${Path.echo}/${query}`:
         const echoStr = path.split("/").pop() as string;
-        const resHeaders = {
+        const resHeader = {
           "Content-Type": "text/plain",
           "Content-Length": echoStr.length.toString(),
-          "Content-Encoding": acceptEncoding,
+          ...encodingType,
         };
         response = constructResponse({
           status: statusLine.OK,
-          headers: resHeaders,
+          headers: resHeader,
           body: echoStr,
         });
         break;
@@ -48,14 +52,14 @@ const server = net.createServer((socket) => {
         const hasUserAgent = "User-Agent" in headers;
         if (hasUserAgent) {
           const userAgent = headers["User-Agent"] ? headers["User-Agent"] : "";
-          const resHeaders = {
+          const resHeader = {
             "Content-Type": "text/plain",
             "Content-Length": userAgent?.length.toString(),
-            "Content-Encoding": acceptEncoding,
+            ...encodingType,
           };
           response = constructResponse({
             status: statusLine.OK,
-            headers: resHeaders,
+            headers: resHeader,
             body: userAgent,
           });
         }
@@ -77,7 +81,7 @@ const server = net.createServer((socket) => {
           const resHeader = {
             "Content-Type": "application/octet-stream",
             "Content-Length": file.fileSize,
-            "Content-Encoding": acceptEncoding,
+            ...encodingType,
           };
           response = constructResponse({
             status: statusLine.OK,
