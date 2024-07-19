@@ -9,6 +9,7 @@ export type Headers = {
   "Content-Length"?: string;
   "User-Agent"?: string;
   "Content-Encoding"?: string;
+  "Accept-Encoding"?: string;
 };
 
 export type Request = {
