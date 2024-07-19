@@ -5,24 +5,23 @@ import {
   constructResponse,
   handleCreateFile,
   handleReadFile,
+  parseEncodingHeader,
   parseRequest,
 } from "./util";
+
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     const { status, headers, body, method, path } = parseRequest(data);
     const query = path.split("/").pop();
 
-    const hasEncoding = "Accept-Encoding" in headers;
-    const acceptEncoding = hasEncoding
-      ? { "Content-Encoding": headers["Accept-Encoding"] }
-      : undefined;
-    const encodingType =
-      acceptEncoding?.["Content-Encoding"] === "gzip" ? acceptEncoding : {};
+    const contentEncoding = parseEncodingHeader({
+      "Content-Encoding": headers["Accept-Encoding"],
+    });
 
     let response = constructResponse({
       status: statusLine.NOT_FOUND,
-      headers: encodingType,
+      headers: contentEncoding,
       body: "",
     });
     switch (path) {
@@ -39,7 +38,7 @@ const server = net.createServer((socket) => {
         const resHeader = {
           "Content-Type": "text/plain",
           "Content-Length": echoStr.length.toString(),
-          ...encodingType,
+          ...contentEncoding,
         };
         response = constructResponse({
           status: statusLine.OK,
@@ -55,7 +54,7 @@ const server = net.createServer((socket) => {
           const resHeader = {
             "Content-Type": "text/plain",
             "Content-Length": userAgent?.length.toString(),
-            ...encodingType,
+            ...contentEncoding,
           };
           response = constructResponse({
             status: statusLine.OK,
@@ -81,7 +80,7 @@ const server = net.createServer((socket) => {
           const resHeader = {
             "Content-Type": "application/octet-stream",
             "Content-Length": file.fileSize,
-            ...encodingType,
+            ...contentEncoding,
           };
           response = constructResponse({
             status: statusLine.OK,

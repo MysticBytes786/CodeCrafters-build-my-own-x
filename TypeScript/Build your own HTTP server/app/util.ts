@@ -1,5 +1,5 @@
 import fs from "fs";
-import { Request, Response } from "./types";
+import { Headers, Request, Response } from "./types";
 
 export function parseRequest(request: Buffer): Request {
   const data = request.toString();
@@ -55,4 +55,16 @@ export function handleReadFile(fileName: string, path: string): fileResult {
 
 export function handleCreateFile(fileName: string, path: string, data: string) {
   fs.writeFileSync(path.concat(`/${fileName}`), data);
+}
+
+export function parseEncodingHeader(encodingHeader: Headers): Headers | {} {
+  if (encodingHeader["Content-Encoding"]?.includes("gzip")) {
+    const gzipEncoding = encodingHeader["Content-Encoding"]
+      .split(", ")
+      .filter((encodingType) => encodingType === "gzip")
+      .pop();
+    return { "Content-Encoding": gzipEncoding };
+  }
+
+  return {};
 }
