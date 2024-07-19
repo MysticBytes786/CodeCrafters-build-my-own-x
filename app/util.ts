@@ -1,5 +1,6 @@
 import fs from "fs";
 import { Headers, Request, Response } from "./types";
+import { createGzip, gzipSync } from "zlib";
 
 export function parseRequest(request: Buffer): Request {
   const data = request.toString();
@@ -26,7 +27,10 @@ export function constructResponse({
       .map(([key, value]) => `${key}: ${value}`)
       .join("\r\n")
   );
-  const bodyBuffer = Buffer.from(body);
+  let bodyBuffer = Buffer.from(body);
+  if (headers["Content-Encoding"] === "gzip") {
+    bodyBuffer = compressData(bodyBuffer);
+  }
 
   return Buffer.concat([
     statusBuffer,
@@ -58,7 +62,6 @@ export function handleCreateFile(fileName: string, path: string, data: string) {
 }
 
 export function parseEncodingHeader(encodingHeader: Headers): Headers | {} {
-
   if (encodingHeader["Content-Encoding"]?.includes("gzip")) {
     const gzipEncoding = encodingHeader["Content-Encoding"]
       .split(", ")
@@ -68,4 +71,8 @@ export function parseEncodingHeader(encodingHeader: Headers): Headers | {} {
   }
 
   return {};
+}
+
+export function compressData(data: Buffer) {
+  return gzipSync(data);
 }
