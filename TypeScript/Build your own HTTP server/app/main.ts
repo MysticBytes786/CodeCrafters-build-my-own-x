@@ -9,7 +9,6 @@ import {
   parseRequest,
 } from "./util";
 
-
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     const { status, headers, body, method, path } = parseRequest(data);

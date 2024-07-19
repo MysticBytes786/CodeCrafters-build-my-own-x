@@ -33,3 +33,10 @@ export enum Path {
   files = "/files",
   userAgent = "/user-agent",
 }
+
+export type fileResult =
+  | {
+      fileContent: string;
+      fileSize: string;
+    }
+  | undefined;
