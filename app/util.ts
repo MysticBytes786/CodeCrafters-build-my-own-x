@@ -27,9 +27,9 @@ export function constructResponse({
       .map(([key, value]) => `${key}: ${value}`)
       .join("\r\n")
   );
-  let bodyBuffer = Buffer.from(body);
+  let bodyBuffer = Buffer.from(body,"utf-8");
   if (headers["Content-Encoding"] === "gzip") {
-    bodyBuffer = compressData(body);
+    bodyBuffer = compressData(bodyBuffer);
   }
 
   return Buffer.concat([
@@ -73,6 +73,6 @@ export function parseEncodingHeader(encodingHeader: Headers): Headers | {} {
   return {};
 }
 
-export function compressData(data: string) {
+export function compressData(data: Buffer) {
   return gzipSync(data);
 }
