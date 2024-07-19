@@ -29,7 +29,7 @@ export function constructResponse({
   );
   let bodyBuffer = Buffer.from(body);
   if (headers["Content-Encoding"] === "gzip") {
-    bodyBuffer = compressData(bodyBuffer);
+    bodyBuffer = compressData(body);
   }
 
   return Buffer.concat([
@@ -73,6 +73,6 @@ export function parseEncodingHeader(encodingHeader: Headers): Headers | {} {
   return {};
 }
 
-export function compressData(data: Buffer) {
+export function compressData(data: string) {
   return gzipSync(data);
 }
