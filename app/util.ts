@@ -27,7 +27,6 @@ export function constructResponse({
   if (body && headers["Content-Encoding"] === "gzip") {
     bodyBuffer = compressData(bodyBuffer);
     headers["Content-Length"] = bodyBuffer.length.toString();
-    console.log(headers);
   }
 
   const headersBuffer = Buffer.from(
